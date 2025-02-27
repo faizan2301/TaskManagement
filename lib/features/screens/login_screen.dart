@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:task_management/common/index.dart';
 import 'package:task_management/features/blocs/auth/index.dart';
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
