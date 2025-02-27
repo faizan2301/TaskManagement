@@ -1,0 +1,163 @@
+{
+  "project_info": {
+    "project_number": "637155831623",
+    "firebase_url": "https://clearbooks-190d4-default-rtdb.firebaseio.com",
+    "project_id": "clearbooks-190d4",
+    "storage_bucket": "clearbooks-190d4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:637155831623:android:5b731cf4da9e2051d06662",
+        "android_client_info": {
+          "package_name": "com.app.task_management"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "637155831623-leef9vfp897a9tq1q4nc29os2vivdn0k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCC7LAX2noNNZCLFEOkQgihpvBRVatI9iQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "637155831623-leef9vfp897a9tq1q4nc29os2vivdn0k.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "637155831623-3p92q4pbsg5rvfqp97j9sinubdb1hi7h.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.clearBooks"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:637155831623:android:db8ac7d9ebc26a7fd06662",
+        "android_client_info": {
+          "package_name": "com.clear_books"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "637155831623-leef9vfp897a9tq1q4nc29os2vivdn0k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCC7LAX2noNNZCLFEOkQgihpvBRVatI9iQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "637155831623-leef9vfp897a9tq1q4nc29os2vivdn0k.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "637155831623-3p92q4pbsg5rvfqp97j9sinubdb1hi7h.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.clearBooks"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:637155831623:android:bd5f0fbe0357a43bd06662",
+        "android_client_info": {
+          "package_name": "com.tictactoe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "637155831623-et12f85dcqmo5ht9li4ucchlprauk7md.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tictactoe",
+            "certificate_hash": "79ba1b01ddb5bdb6a8fb804949df08095187ed22"
+          }
+        },
+        {
+          "client_id": "637155831623-leef9vfp897a9tq1q4nc29os2vivdn0k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCC7LAX2noNNZCLFEOkQgihpvBRVatI9iQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "637155831623-leef9vfp897a9tq1q4nc29os2vivdn0k.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "637155831623-3p92q4pbsg5rvfqp97j9sinubdb1hi7h.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.clearBooks"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:637155831623:android:73bdb2c1624d43cad06662",
+        "android_client_info": {
+          "package_name": "com.uos_transport"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "637155831623-leef9vfp897a9tq1q4nc29os2vivdn0k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCC7LAX2noNNZCLFEOkQgihpvBRVatI9iQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "637155831623-leef9vfp897a9tq1q4nc29os2vivdn0k.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "637155831623-3p92q4pbsg5rvfqp97j9sinubdb1hi7h.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.clearBooks"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
