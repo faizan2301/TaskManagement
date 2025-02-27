@@ -111,13 +111,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: AppTextStyle.titleMedium(context),
                         ),
                         OutlinedButton.icon(
-                          icon: Image.network(
-                            'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
-                            width: 24,
-                            height: 24,
-                            errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.ac_unit),
-                          ),
+                          // icon: Image.network(
+                          //   'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
+                          //   width: 24,
+                          //   height: 24,
+                          //   errorBuilder: (context, error, stackTrace) =>
+                          //   const Icon(Icons.ac_unit),
+                          // ),
+                          icon:Icon(Icons.ac_unit),
                           label: const Text('Sign in with Google'),
                           onPressed: () {
                             context.read<AuthBloc>().add(GoogleSignInRequested());

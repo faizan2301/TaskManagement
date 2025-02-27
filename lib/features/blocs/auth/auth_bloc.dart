@@ -1,10 +1,11 @@
 import 'dart:async';
+import 'package:task_management/common/index.dart';
 import 'package:task_management/data/models/index.dart';
 import 'package:bloc/bloc.dart';
 import 'package:task_management/data/repositories/auth_repository.dart';
 import 'package:task_management/features/blocs/auth/auth_events.dart';
 import 'package:task_management/features/blocs/auth/auth_states.dart';
-
+import 'package:flutter/material.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
   StreamSubscription? _authSubscription;
@@ -22,30 +23,54 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      final UserModel? user = await _authRepository.getCurrentUser();
-      if (user != null) {
-        emit(Authenticated(user));
-      } else {
-        emit(Unauthenticated());
-      }
-
-      // Listen to auth state changes
+      await _checkAndUpdateAuthStatus(emit);
       _authSubscription?.cancel();
       _authSubscription = _authRepository.isSignedIn.listen((isSignedIn) async {
-        if (isSignedIn) {
-          final user = await _authRepository.getCurrentUser();
-          if (user != null) {
-            add(AppStarted());
-          }
-        } else {
+        if (!isSignedIn && state is Authenticated) {
+          debugPrint("⚡️ AuthBloc: User signed out from Firebase");
           add(SignOutRequested());
+        } else if (isSignedIn) {
+          debugPrint("⚡️ AuthBloc: User signed in to Firebase");
+          add(CheckAuthStatus());
         }
       });
     } catch (e) {
+
       emit(AuthFailure(e.toString()));
     }
   }
+  Future<void> _checkAndUpdateAuthStatus(Emitter<AuthState> emit) async {
+    // First check SharedPreferences (prioritize this)
+    bool isAuthenticated = await _authRepository.isAuthenticatedFromPrefs();
+    debugPrint("⚡️ AuthBloc: isAuthenticated from prefs: $isAuthenticated");
 
+    if (isAuthenticated) {
+      // Get user from preferences
+      UserModel? prefsUser = await _authRepository.getUserFromPrefs();
+      debugPrint("⚡️ AuthBloc: User from prefs: $prefsUser");
+
+      if (prefsUser != null) {
+        debugPrint("✅ AuthBloc: User authenticated via SharedPreferences");
+        emit(Authenticated(prefsUser));
+        return;
+      }
+    }
+
+    // Only if not authenticated in prefs, check Firebase
+    UserModel? firebaseUser = _authRepository.getFirebaseCurrentUser();
+    debugPrint("⚡️ AuthBloc: Firebase current user: $firebaseUser");
+
+    if (firebaseUser != null) {
+      debugPrint("✅ AuthBloc: User authenticated via Firebase");
+      // Save to prefs for next time
+      await _authRepository.saveUserToPrefs(firebaseUser);
+      emit(Authenticated(firebaseUser));
+      return;
+    }
+
+    debugPrint("❌ AuthBloc: User is not authenticated");
+    emit(Unauthenticated());
+  }
   Future<void> _onSignUpRequested(
     SignUpRequested event,
     Emitter<AuthState> emit,
@@ -104,4 +129,5 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _authSubscription?.cancel();
     return super.close();
   }
+
 }

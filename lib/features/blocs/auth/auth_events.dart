@@ -30,3 +30,4 @@ class SignInRequested extends AuthEvent {
 class GoogleSignInRequested extends AuthEvent {}
 
 class SignOutRequested extends AuthEvent {}
+class CheckAuthStatus extends AuthEvent {}

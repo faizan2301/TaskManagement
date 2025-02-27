@@ -51,6 +51,7 @@ class _SignupScreenState extends State<SignupScreen> {
             if (state is Authenticated) {
               NavigationHelper.goTo(context, dashboard);
             } else if (state is AuthFailure) {
+              debugPrint("message ${state.message}");
               ScaffoldMessenger.of(
                 context,
               ).showSnackBar(SnackBar(content: Text(state.message)));
@@ -117,19 +118,17 @@ class _SignupScreenState extends State<SignupScreen> {
                           style: AppTextStyle.titleMedium(context),
                         ),
                         OutlinedButton.icon(
-                          icon: Image.network(
-                            'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
-                            width: 24,
-                            height: 24,
-                            errorBuilder:
-                                (context, error, stackTrace) =>
-                                    const Icon(Icons.ac_unit),
-                          ),
+                          // icon: Image.network(
+                          //   'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
+                          //   width: 24,
+                          //   height: 24,
+                          //   errorBuilder: (context, error, stackTrace) =>
+                          //   const Icon(Icons.ac_unit),
+                          // ),
+                          icon:Icon(Icons.ac_unit),
                           label: const Text('Sign up with Google'),
                           onPressed: () {
-                            context.read<AuthBloc>().add(
-                              GoogleSignInRequested(),
-                            );
+                            context.read<AuthBloc>().add(GoogleSignInRequested());
                           },
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 12),

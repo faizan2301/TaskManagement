@@ -12,3 +12,4 @@ export '../data/repositories/auth_repository.dart';
 export '../data/repositories/task_repository.dart';
 export './widgets/custom_app_bar.dart';
 export '../utility/navigation_helper.dart';
+export './widgets/task_count_card.dart';
