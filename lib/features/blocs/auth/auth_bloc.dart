@@ -38,7 +38,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             add(AppStarted());
           }
         } else {
-          emit(Unauthenticated());
+          add(SignOutRequested());
         }
       });
     } catch (e) {

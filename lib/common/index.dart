@@ -8,3 +8,7 @@ export '../utility/utils.dart';
 export '../utility/validations.dart';
 export '../router.dart';
 export './constants/assets.dart';
+export '../data/repositories/auth_repository.dart';
+export '../data/repositories/task_repository.dart';
+export './widgets/custom_app_bar.dart';
+export '../utility/navigation_helper.dart';
