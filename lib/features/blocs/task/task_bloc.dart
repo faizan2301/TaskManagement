@@ -23,7 +23,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       if (event.lastDocument == null) {
         emit(TaskLoading());
       }
-
+      final int fetchLimit = 10;
       final tasks = await _taskRepository.getTasks(
         userId: event.userId,
         startDate: event.startDate,
@@ -44,14 +44,14 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
           lastDoc = snapshot.docs.first;
         }
       }
-
+      bool hasReachedMax = tasks.isEmpty || tasks.length < fetchLimit;
       if (state is TasksLoaded && event.lastDocument != null) {
         final currentState = state as TasksLoaded;
         emit(
           currentState.copyWith(
             tasks: [...currentState.tasks, ...tasks],
             lastDocument: tasks.isEmpty ? null : lastDoc,
-            hasReachedMax: tasks.isEmpty,
+            hasReachedMax: hasReachedMax,
           ),
         );
       } else {
@@ -59,7 +59,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
           TasksLoaded(
             tasks: tasks,
             lastDocument: tasks.isEmpty ? null : lastDoc,
-            hasReachedMax: tasks.isEmpty,
+            hasReachedMax: hasReachedMax,
           ),
         );
       }

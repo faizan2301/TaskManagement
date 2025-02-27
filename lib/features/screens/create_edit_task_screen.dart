@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:task_management/common/index.dart';
 import 'package:task_management/data/models/index.dart';
 import 'package:task_management/features/blocs/auth/index.dart';
 import 'package:task_management/features/blocs/task/index.dart';
+
 class CreateEditTaskScreen extends StatefulWidget {
   final String? taskId;
 
-  const CreateEditTaskScreen({super.key,    this.taskId,});
+  const CreateEditTaskScreen({super.key, this.taskId});
 
   @override
   State<CreateEditTaskScreen> createState() => _CreateEditTaskScreenState();
@@ -22,6 +24,7 @@ class _CreateEditTaskScreenState extends State<CreateEditTaskScreen> {
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 1));
   bool _isLoading = false;
   Task? _task;
+
   @override
   void initState() {
     super.initState();
@@ -29,6 +32,7 @@ class _CreateEditTaskScreenState extends State<CreateEditTaskScreen> {
       _loadTask();
     }
   }
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -54,7 +58,7 @@ class _CreateEditTaskScreenState extends State<CreateEditTaskScreen> {
         });
       }
     } catch (e) {
-      if(context.mounted){
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error loading task: ${e.toString()}'),
@@ -62,7 +66,6 @@ class _CreateEditTaskScreenState extends State<CreateEditTaskScreen> {
           ),
         );
       }
-
     } finally {
       setState(() {
         _isLoading = false;
@@ -91,7 +94,6 @@ class _CreateEditTaskScreenState extends State<CreateEditTaskScreen> {
 
       if (authState is Authenticated) {
         if (_task != null) {
-          // Update existing task
           final updatedTask = _task!.copyWith(
             title: _titleController.text,
             description: _descriptionController.text,
@@ -100,13 +102,14 @@ class _CreateEditTaskScreenState extends State<CreateEditTaskScreen> {
 
           context.read<TaskBloc>().add(UpdateTask(updatedTask));
         } else {
-          // Create new task
-          context.read<TaskBloc>().add(CreateTask(
-            title: _titleController.text,
-            description: _descriptionController.text,
-            deadline: _selectedDate,
-            userId: authState.user.id,
-          ));
+          context.read<TaskBloc>().add(
+            CreateTask(
+              title: _titleController.text,
+              description: _descriptionController.text,
+              deadline: _selectedDate,
+              userId: authState.user.id,
+            ),
+          );
         }
       }
     }
@@ -121,9 +124,9 @@ class _CreateEditTaskScreenState extends State<CreateEditTaskScreen> {
       body: BlocListener<TaskBloc, TaskState>(
         listener: (context, state) {
           if (state is TaskOperationSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
             NavigationHelper.goTo(context, tasks);
           } else if (state is TaskFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -134,82 +137,84 @@ class _CreateEditTaskScreenState extends State<CreateEditTaskScreen> {
             );
           }
         },
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextFormField(
-                  controller: _titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Task Title',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a title';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                    border: OutlineInputBorder(),
-                  ),
-                  maxLines: 5,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a description';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                InkWell(
-                  onTap: () => _selectDate(context),
-                  child: InputDecorator(
-                    decoration: const InputDecoration(
-                      labelText: 'Deadline',
-                      border: OutlineInputBorder(),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child:
+            _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      spacing: 16,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          DateFormat('dd/MM/yyyy').format(_selectedDate),
+                        AppTextFormField(
+                          label: "Task Title",
+                          controller: _titleController,
+
+                          validator: (value)=>validateAdditionalDetails(value!, "description"),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.deny(RegExp(regexToRemoveEmoji)),
+                          ],
                         ),
-                        const Icon(Icons.calendar_today),
+
+
+                        AppTextFormField(
+                          label: "Description",
+                          controller: _descriptionController,
+                          maxLines: 5,
+                          minLines: 3,
+                          validator: (value)=>validateAdditionalDetails(value!, "description"),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.deny(RegExp(regexToRemoveEmoji)),
+                          ],
+                        ),
+
+
+                        InkWell(
+                          onTap: () => _selectDate(context),
+                          child: InputDecorator(
+                            decoration: const InputDecoration(
+                              labelText: 'Deadline',
+                              border: OutlineInputBorder(),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  DateFormat(
+                                    'dd/MM/yyyy',
+                                  ).format(_selectedDate),
+                                ),
+                                const Icon(Icons.calendar_today),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        BlocBuilder<TaskBloc, TaskState>(
+                          builder: (context, state) {
+                            return ElevatedButton(
+                              onPressed:
+                                  state is TaskLoading ? null : _submitForm,
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size.fromHeight(50),
+                              ),
+                              child:
+                                  state is TaskLoading
+                                      ? const CircularProgressIndicator()
+                                      : Text(
+                                        widget.taskId != null
+                                            ? "Update Task"
+                                            : "Create Task",
+                                      ),
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 32),
-                BlocBuilder<TaskBloc, TaskState>(
-                  builder: (context, state) {
-                    return ElevatedButton(
-                      onPressed: state is TaskLoading ? null : _submitForm,
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(50),
-                      ),
-                      child: state is TaskLoading
-                          ? const CircularProgressIndicator()
-                          : Text(
-                        widget.taskId != null ? "Update Task" : "Create Task",
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

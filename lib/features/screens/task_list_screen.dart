@@ -49,6 +49,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
     final taskState = context.read<TaskBloc>().state;
     if (taskState is TasksLoaded &&
         !taskState.hasReachedMax &&
+        context.read<TaskBloc>().state is! TaskLoading &&
         _userId != null) {
       context.read<TaskBloc>().add(
         FetchTasks(
@@ -120,117 +121,124 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        title: "Tasks",
-        actions: [
-          PopupMenuButton<bool?>(
-            icon: const Icon(Icons.filter_list),
-            onSelected: _onFilterChanged,
-            itemBuilder:
-                (context) => [
-                  const PopupMenuItem(value: null, child: Text('All Tasks')),
-                  const PopupMenuItem(
-                    value: false,
-                    child: Text('Pending Tasks'),
-                  ),
-                  const PopupMenuItem(
-                    value: true,
-                    child: Text('Completed Tasks'),
-                  ),
-                ],
-          ),
-        ],
-      ),
-      body: BlocConsumer<TaskBloc, TaskState>(
-        listener: (context, state) {
-          if (state is TaskOperationSuccess) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
-            // Reload tasks after successful operation
-            _loadTasks();
-          } else if (state is TaskFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Error: ${state.message}'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          if (state is TaskLoading &&
-              (context.read<TaskBloc>().state is! TasksLoaded)) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is TasksLoaded ||
-              (state is TaskLoading &&
-                  context.read<TaskBloc>().state is TasksLoaded)) {
-            final loadedState =
-                (state is TasksLoaded)
-                    ? state
-                    : context.read<TaskBloc>().state as TasksLoaded;
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool val, t) {
+        NavigationHelper.goTo(context, dashboard);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          title: "Tasks",
+          showBackButton: true,
+          actions: [
+            PopupMenuButton<bool?>(
+              icon: const Icon(Icons.filter_list),
+              onSelected: _onFilterChanged,
+              itemBuilder:
+                  (context) => [
+                    const PopupMenuItem(value: null, child: Text('All Tasks')),
+                    const PopupMenuItem(
+                      value: false,
+                      child: Text('Pending Tasks'),
+                    ),
+                    const PopupMenuItem(
+                      value: true,
+                      child: Text('Completed Tasks'),
+                    ),
+                  ],
+            ),
+          ],
+        ),
+        body: BlocConsumer<TaskBloc, TaskState>(
+          listener: (context, state) {
+            if (state is TaskOperationSuccess) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
+              _loadTasks();
+            } else if (state is TaskFailure) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Error: ${state.message}'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          },
+          builder: (context, state) {
+            if (state is TaskLoading &&
+                (context.read<TaskBloc>().state is! TasksLoaded)) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is TasksLoaded ||
+                (state is TaskLoading &&
+                    context.read<TaskBloc>().state is TasksLoaded)) {
+              final loadedState =
+                  (state is TasksLoaded)
+                      ? state
+                      : context.read<TaskBloc>().state as TasksLoaded;
 
-            if (loadedState.tasks.isEmpty) {
+              if (loadedState.tasks.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('No tasks found'),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed:
+                            () => NavigationHelper.pushTo(context, addTasks),
+                        child: const Text('Create New Task'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return RefreshIndicator(
+                onRefresh: () async {
+                  _loadTasks();
+                },
+                child: ListView.builder(
+                  controller: _scrollController,
+                  itemCount:
+                      loadedState.tasks.length +
+                      (loadedState.hasReachedMax ? 0 : 1),
+                  itemBuilder: (context, index) {
+                    if (index >= loadedState.tasks.length) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    }
+
+                    final task = loadedState.tasks[index];
+                    return _buildTaskItem(context, task);
+                  },
+                ),
+              );
+            } else {
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('No tasks found'),
+                    const Text('Something went wrong'),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () => NavigationHelper.pushTo(context, addTasks),
-                      child: const Text('Create New Task'),
+                      onPressed: _loadTasks,
+                      child: const Text('Retry'),
                     ),
                   ],
                 ),
               );
             }
-
-            return RefreshIndicator(
-              onRefresh: () async {
-                _loadTasks();
-              },
-              child: ListView.builder(
-                controller: _scrollController,
-                itemCount:
-                    loadedState.tasks.length +
-                    (loadedState.hasReachedMax ? 0 : 1),
-                itemBuilder: (context, index) {
-                  if (index >= loadedState.tasks.length) {
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16.0),
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  }
-
-                  final task = loadedState.tasks[index];
-                  return _buildTaskItem(context, task);
-                },
-              ),
-            );
-          } else {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Something went wrong'),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _loadTasks,
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
-          }
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => NavigationHelper.pushTo(context, addTasks),
-        child: const Icon(Icons.add),
+          },
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => NavigationHelper.pushTo(context, addTasks),
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }
@@ -252,11 +260,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
       ),
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.startToEnd && !task.isCompleted) {
-          // Complete task
           _completeTask(task.id);
-          return false; // Don't dismiss yet, wait for confirmation
+          return false;
         } else if (direction == DismissDirection.endToStart) {
-          // Delete task
           return await showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -349,7 +355,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
                           extra: task.id,
                         ),
                   ),
-          onTap: () => NavigationHelper.pushTo(context, taskDetail, extra: task.id,),
+          onTap:
+              () =>
+                  NavigationHelper.pushTo(context, taskDetail, extra: task.id),
         ),
       ),
     );

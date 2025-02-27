@@ -29,15 +29,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: "Dashboard", showBackButton: true),
+      appBar: CustomAppBar(
+        title: "Dashboard",
+        actions: [
+          IconButton(
+            onPressed: () async {
+              context.read<AuthBloc>().add(SignOutRequested());
+              NavigationHelper.goTo(context, login);
+            },
+            icon: Icon(Icons.logout, color: Colors.red),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, authState) {
-            debugPrint("🔍 Auth state type: ${authState.runtimeType}");
-            debugPrint("🔍 Auth state props: ${authState.props}");
-            debugPrint("🔍 Auth state toString: $authState");
             if (authState is Authenticated) {
-              debugPrint("${authState.user}");
               final UserModel user = authState.user;
               return BlocBuilder<DashboardBloc, DashboardState>(
                 builder: (context, state) {
@@ -80,7 +87,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 },
               );
             } else {
-              debugPrint("LOLO");
               return const Center(child: CircularProgressIndicator());
             }
           },
