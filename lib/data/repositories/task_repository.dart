@@ -9,7 +9,7 @@ class TaskRepository {
   TaskRepository({FirebaseFirestore? firestore})
     : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  CollectionReference get _tasksCollection => _firestore.collection('tasks');
+  CollectionReference get tasksCollection => _firestore.collection('tasks');
 
   Future<Task> createTask({
     required String title,
@@ -28,7 +28,7 @@ class TaskRepository {
       userId: userId,
     );
 
-    await _tasksCollection.doc(id).set(task.toMap());
+    await tasksCollection.doc(id).set(task.toMap());
     return task;
   }
 
@@ -40,7 +40,7 @@ class TaskRepository {
     DocumentSnapshot? lastDocument,
     int limit = 10,
   }) async {
-    Query query = _tasksCollection.where('userId', isEqualTo: userId);
+    Query query = tasksCollection.where('userId', isEqualTo: userId);
 
     if (startDate != null) {
       query = query.where(
@@ -78,10 +78,10 @@ class TaskRepository {
 
   Future<Map<String, int>> getTaskCounts(String userId) async {
     final QuerySnapshot totalSnapshot =
-        await _tasksCollection.where('userId', isEqualTo: userId).get();
+        await tasksCollection.where('userId', isEqualTo: userId).get();
 
     final QuerySnapshot completedSnapshot =
-        await _tasksCollection
+        await tasksCollection
             .where('userId', isEqualTo: userId)
             .where('isCompleted', isEqualTo: true)
             .get();
@@ -94,7 +94,7 @@ class TaskRepository {
   }
 
   Future<Task?> getTask(String taskId) async {
-    final DocumentSnapshot doc = await _tasksCollection.doc(taskId).get();
+    final DocumentSnapshot doc = await tasksCollection.doc(taskId).get();
     if (!doc.exists) {
       return null;
     }
@@ -102,7 +102,7 @@ class TaskRepository {
   }
 
   Future<Task> updateTask(Task task) async {
-    await _tasksCollection.doc(task.id).update(task.toMap());
+    await tasksCollection.doc(task.id).update(task.toMap());
     return task;
   }
 
@@ -110,7 +110,7 @@ class TaskRepository {
     required String taskId,
     required String remarks,
   }) async {
-    final DocumentSnapshot doc = await _tasksCollection.doc(taskId).get();
+    final DocumentSnapshot doc = await tasksCollection.doc(taskId).get();
     if (!doc.exists) {
       throw Exception('Task not found');
     }
@@ -118,11 +118,11 @@ class TaskRepository {
     final Task task = Task.fromMap(doc.data() as Map<String, dynamic>);
     final Task updatedTask = task.copyWith(isCompleted: true, remarks: remarks);
 
-    await _tasksCollection.doc(taskId).update(updatedTask.toMap());
+    await tasksCollection.doc(taskId).update(updatedTask.toMap());
     return updatedTask;
   }
 
   Future<void> deleteTask(String taskId) async {
-    await _tasksCollection.doc(taskId).delete();
+    await tasksCollection.doc(taskId).delete();
   }
 }
